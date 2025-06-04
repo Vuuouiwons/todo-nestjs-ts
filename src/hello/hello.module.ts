@@ -6,6 +6,4 @@ import { HelloController } from './hello.controller';
   controllers: [HelloController],
   providers: [HelloService],
 })
-export class HelloModule {
-  
-}
+export class HelloModule { }
