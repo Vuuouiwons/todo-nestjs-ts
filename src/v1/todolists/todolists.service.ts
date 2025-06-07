@@ -74,7 +74,9 @@ export class TodolistsService {
     }
     Object.assign(todolist, updateTodolistDto);
 
-    return await this.todolistsRepository.save(todolist);
+    const updatedRow = await this.todolistsRepository.save(todolist)
+
+    return parseResponse(0, 'TL', 201, '', updatedRow);
   }
 
   async remove(userInformation: JWTDecoded, todolistId: number) {
