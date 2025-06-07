@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CreateTodolistDto, UpdateTodolistDto } from './dto';
-import { Todolist } from './entities/todolist.entity';
 import { JWTDecoded } from '../authorization/authorization.interface';
-import { User } from '../user/entities/user.entity';
 import { parseResponse } from '../dto/response';
-import { UpdateTodoDto } from '../todo/dto/update-todo.dto';
+
 import { Todo } from '../todo/entities/todo.entity';
+import { Todolist } from './entities/todolist.entity';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class TodolistsService {
@@ -58,7 +58,7 @@ export class TodolistsService {
       'TL',
       200,
       '',
-       data);
+      data);
   }
 
   async update(userInformation: JWTDecoded, todolistId: number, updateTodolistDto: UpdateTodolistDto) {
