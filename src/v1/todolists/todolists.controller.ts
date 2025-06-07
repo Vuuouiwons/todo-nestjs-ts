@@ -4,6 +4,7 @@ import { CreateTodolistDto } from './dto/create-todolist.dto';
 import { UpdateTodolistDto } from './dto/update-todolist.dto';
 import { Authorization } from '../authorization/authorization.decorator';
 import { JWTDecoded } from '../authorization/authorization.interface';
+
 @Controller('todolists')
 export class TodolistsController {
   constructor(private readonly todolistsService: TodolistsService) { }

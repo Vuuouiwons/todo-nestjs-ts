@@ -5,10 +5,9 @@ import { AuthorizationMiddleware } from '../authorization/authorization.middlewa
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Todolist } from './entities/todolist.entity';
 import { Todo } from '../todo/entities/todo.entity';
-import { User } from '../user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Todolist, Todo, User])],
+  imports: [TypeOrmModule.forFeature([Todolist, Todo])],
   controllers: [TodolistsController],
   providers: [TodolistsService],
 })
