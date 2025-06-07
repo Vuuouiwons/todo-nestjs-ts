@@ -6,6 +6,10 @@ import { UserModule } from './v1/user/user.module';
 import { TodolistsModule } from './v1/todolists/todolists.module';
 import { TodoModule } from './v1/todo/todo.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerMiddleware } from './common/logging/logger.middlware';
+import { User } from './v1/user/entities/user.entity';
+import { Todo } from './v1/todo/entities/todo.entity';
+import { Todolist } from './v1/todolists/entities/todolist.entity';
 
 @Module({
   imports: [
@@ -23,4 +27,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL })
+  }
+}
