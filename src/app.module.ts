@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HelloModule } from './v1/hello/hello.module';
@@ -20,7 +20,7 @@ import { Todolist } from './v1/todolists/entities/todolist.entity';
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DATABASE,
-      entities: [],
+      entities: [User, Todo, Todolist],
       synchronize: true,
     }),
     HelloModule, UserModule, TodolistsModule, TodoModule],
