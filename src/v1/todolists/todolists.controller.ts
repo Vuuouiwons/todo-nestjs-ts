@@ -1,34 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, HttpCode } from '@nestjs/common';
 import { TodolistsService } from './todolists.service';
 import { CreateTodolistDto } from './dto/create-todolist.dto';
 import { UpdateTodolistDto } from './dto/update-todolist.dto';
-
+import { Authorization } from '../authorization/authorization.decorator';
+import { JWTDecoded } from '../authorization/authorization.interface';
 @Controller('todolists')
 export class TodolistsController {
-  constructor(private readonly todolistsService: TodolistsService) {}
+  constructor(private readonly todolistsService: TodolistsService) { }
 
-  @Post()
-  create(@Body() createTodolistDto: CreateTodolistDto) {
-    return this.todolistsService.create(createTodolistDto);
+  @HttpCode(201)
+  @Post('')
+  create(@Authorization() userInformation: JWTDecoded,
+    @Body() createTodolistDto: CreateTodolistDto) {
+
+    return this.todolistsService.create(userInformation, createTodolistDto);
   }
 
-  @Get()
-  findAll() {
-    return this.todolistsService.findAll();
+  @Get('')
+  findAll(@Authorization() userInformation: JWTDecoded,
+    @Query('limit') limit: string, @Query('offset') offset: string) {
+    return this.todolistsService.findAllTodolist(userInformation, +limit, +offset);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todolistsService.findOne(+id);
+  @Get(':listId')
+  findAllTodo(@Authorization() userInformation: JWTDecoded,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string,
+    @Param('listId') todolistId: string) {
+    return this.todolistsService.findAllTodoByTodolist(userInformation, +todolistId, +limit, +offset);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodolistDto: UpdateTodolistDto) {
-    return this.todolistsService.update(+id, updateTodolistDto);
+  @HttpCode(201)
+  @Put(':listId')
+  update(@Authorization() userInformation: JWTDecoded,
+    @Param('listId') todolistId: string,
+    @Body() updateTodolistDto: UpdateTodolistDto) {
+    return this.todolistsService.update(userInformation, +todolistId, updateTodolistDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todolistsService.remove(+id);
+  @HttpCode(204)
+  @Delete(':listId')
+  remove(@Authorization() userInformation: JWTDecoded,
+    @Param('listId') todolistId: string) {
+    return this.todolistsService.remove(userInformation, +todolistId);
   }
 }

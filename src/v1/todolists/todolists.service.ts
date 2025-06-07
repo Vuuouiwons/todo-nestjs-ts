@@ -1,26 +1,121 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTodolistDto } from './dto/create-todolist.dto';
-import { UpdateTodolistDto } from './dto/update-todolist.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { CreateTodolistDto, UpdateTodolistDto } from './dto';
+import { Todolist } from './entities/todolist.entity';
+import { JWTDecoded } from '../authorization/authorization.interface';
+import { User } from '../user/entities/user.entity';
+import { parseResponse } from '../dto/response';
+import { UpdateTodoDto } from '../todo/dto/update-todo.dto';
+import { Todo } from '../todo/entities/todo.entity';
 
 @Injectable()
 export class TodolistsService {
-  create(createTodolistDto: CreateTodolistDto) {
-    return 'This action adds a new todolist';
+  constructor(
+    @InjectRepository(Todolist) private readonly todolistsRepository: Repository<Todolist>,
+    @InjectRepository(Todo) private readonly todoRepository: Repository<Todo>
+  ) { }
+
+  async create(userInformation: JWTDecoded, createTodolistDto: CreateTodolistDto) {
+    const newTodolist = new Todolist();
+    newTodolist.title = createTodolistDto.title;
+    newTodolist.user = { id: userInformation.id } as User;
+
+    const newTodolistId = (await this.todolistsRepository.save(newTodolist)).id;
+
+    const payload = { id: newTodolistId };
+
+    return parseResponse(0,
+      'TL',
+      201,
+      '',
+      payload);
   }
 
-  findAll() {
-    return `This action returns all todolists`;
+  async findAllTodolist(userInformation: JWTDecoded,
+    limit: number = 20,
+    offset: number = 0) {
+    const newTodolist = new Todolist();
+    newTodolist.user = { id: userInformation.id } as User;
+
+    const rawData = await this.todolistsRepository.find({
+      take: limit,
+      skip: offset,
+      where: newTodolist
+    });
+
+    const data = rawData.map((d) => {
+      const mappedData = {
+        id: d.id,
+        title: d.title,
+        status: d.status
+      }
+      return mappedData;
+    });
+
+    return parseResponse(0,
+      'TL',
+      200,
+      '',
+       data);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todolist`;
+  async update(userInformation: JWTDecoded, todolistId: number, updateTodolistDto: UpdateTodolistDto) {
+    const todolist = await this.todolistsRepository.findOne({
+      where: {
+        id: todolistId,
+        user: { id: userInformation.id }
+      }
+    })
+
+    if (!todolist) {
+      throw new HttpException('Todolist not found', HttpStatus.BAD_REQUEST);
+    }
+    Object.assign(todolist, updateTodolistDto);
+
+    return await this.todolistsRepository.save(todolist);
   }
 
-  update(id: number, updateTodolistDto: UpdateTodolistDto) {
-    return `This action updates a #${id} todolist`;
+  async remove(userInformation: JWTDecoded, todolistId: number) {
+    const todo: Array<any> = await this.todoRepository
+      .createQueryBuilder('todo')
+      .leftJoinAndSelect('todo.todolist', 'todolist')
+      .leftJoinAndSelect('todolist.user', 'user')
+      .select('todo.id', 'todoId')
+      .where('todolist.id = :todolistId', { todolistId })
+      .andWhere('user.id = :userId', { userId: userInformation.id })
+      .execute();
+
+    const todoIds: Array<number> = todo.map(d => d.todoId);
+
+    try {
+      await this.todoRepository.delete(todoIds);
+    } catch { }
+
+    try {
+      await this.todolistsRepository.delete(todolistId);
+    } catch { }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todolist`;
+  async findAllTodoByTodolist(userInformation: JWTDecoded, todolistId: number, limit: number, offset: number) {
+    const todo: Array<any> = await this.todoRepository
+      .createQueryBuilder('todo')
+      .leftJoinAndSelect('todo.todolist', 'todolist')
+      .leftJoinAndSelect('todolist.user', 'user')
+      .select('todo.id', 'id')
+      .addSelect('todo.message', 'message')
+      .addSelect('todo.status', 'status')
+      .where('todolist.id = :todolistId', { todolistId })
+      .andWhere('user.id = :userId', { userId: userInformation.id })
+      .offset(offset)
+      .limit(limit)
+      .execute();
+
+    return parseResponse(0,
+      'TL',
+      200,
+      'success',
+      todo);
   }
 }
