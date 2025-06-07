@@ -43,9 +43,6 @@ export class UserService {
 
     const userInformation: User | null = await this.usersRepository.findOneBy({ username });
 
-    console.log(userInformation?.password);
-    console.log(password);
-
     if (userInformation === null || !compareSync(password, userInformation.password)) {
       throw new HttpException(unauthenticatedMessage, HttpStatus.UNAUTHORIZED);
     }
