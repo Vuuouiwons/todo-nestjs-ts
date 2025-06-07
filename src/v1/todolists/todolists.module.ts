@@ -1,8 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { TodolistsService } from './todolists.service';
 import { TodolistsController } from './todolists.controller';
 import { AuthorizationMiddleware } from '../authorization/authorization.middleware';
-import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { Todolist } from './entities/todolist.entity';
 import { Todo } from '../todo/entities/todo.entity';
 
