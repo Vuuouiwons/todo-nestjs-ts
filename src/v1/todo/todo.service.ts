@@ -91,7 +91,7 @@ export class TodoService {
         }
       },
       relations: ['todolist', 'todolist.user']
-    })
+    });
 
     if (!todo) throw new HttpException('todo not found', HttpStatus.NOT_FOUND);
 
