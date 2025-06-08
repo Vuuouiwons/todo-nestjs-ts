@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { TodolistsService } from './todolists.service';
-import { CreateTodolistDto } from './dto/create-todolist.dto';
-import { UpdateTodolistDto } from './dto/update-todolist.dto';
+import { CreateTodolistDto, UpdateTodolistDto } from './dto';
 import { Authorization } from '../authorization/authorization.decorator';
 import { JWTDecoded } from '../authorization/authorization.interface';
 
@@ -9,11 +8,10 @@ import { JWTDecoded } from '../authorization/authorization.interface';
 export class TodolistsController {
   constructor(private readonly todolistsService: TodolistsService) { }
 
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @Post('')
   create(@Authorization() userInformation: JWTDecoded,
     @Body() createTodolistDto: CreateTodolistDto) {
-
     return this.todolistsService.create(userInformation, createTodolistDto);
   }
 
@@ -31,7 +29,7 @@ export class TodolistsController {
     return this.todolistsService.findAllTodoByTodolist(userInformation, +todolistId, +limit, +offset);
   }
 
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @Put(':listId')
   update(@Authorization() userInformation: JWTDecoded,
     @Param('listId') todolistId: string,
@@ -39,7 +37,7 @@ export class TodolistsController {
     return this.todolistsService.update(userInformation, +todolistId, updateTodolistDto);
   }
 
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':listId')
   remove(@Authorization() userInformation: JWTDecoded,
     @Param('listId') todolistId: string) {
