@@ -1,11 +1,4 @@
-# NestJS Flow
-```
-                       endpoint.modules
-                              |
-                              V
-endpoint.controller -> endpoint.service -> endpoint.repository
-```
-
+![techstack image](images/techstack.jpg)
 # ToDo List NestJS
 # Tech stack
 Describe the tech stack used to make this todo app.
@@ -15,7 +8,6 @@ Describe the tech stack used to make this todo app.
 ## etc Tech stack
 Supporting microservices
 1. postgresql
-2. redis
 
 # Data flow
 ```text
