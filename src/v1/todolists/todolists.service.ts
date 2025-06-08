@@ -10,6 +10,8 @@ import { Todo } from '../todo/entities/todo.entity';
 import { Todolist } from './entities/todolist.entity';
 import { User } from '../user/entities/user.entity';
 
+import { todoMap } from '../todo/mappings';
+
 @Injectable()
 export class TodolistsService {
   constructor(
@@ -80,44 +82,55 @@ export class TodolistsService {
   }
 
   async remove(userInformation: JWTDecoded, todolistId: number) {
-    const todo: Array<any> = await this.todoRepository
-      .createQueryBuilder('todo')
-      .leftJoinAndSelect('todo.todolist', 'todolist')
-      .leftJoinAndSelect('todolist.user', 'user')
-      .select('todo.id', 'todoId')
-      .where('todolist.id = :todolistId', { todolistId })
-      .andWhere('user.id = :userId', { userId: userInformation.id })
-      .execute();
+    const userId = userInformation.id;
 
-    const todoIds: Array<number> = todo.map(d => d.todoId);
+    const todolist = await this.todolistsRepository.findOne({
+      where: {
+        id: todolistId,
+        user: {
+          id: userId,
+        },
+      }
+    });
 
-    try {
-      await this.todoRepository.delete(todoIds);
-    } catch { }
+    if (!todolist) throw new HttpException('todolist not found', HttpStatus.NOT_FOUND);
 
-    try {
-      await this.todolistsRepository.delete(todolistId);
-    } catch { }
+    const todo = await this.todoRepository.find({
+      where: {
+        todolist: {
+          id: todolistId,
+          user: {
+            id: userId
+          }
+        }
+      },
+      relations: ['todolist', 'todolist.user']
+    });
+
+    const todoStatus = await this.todoRepository.remove(todo);
+    const todolistStatus = await this.todolistsRepository.remove(todolist);
   }
 
   async findAllTodoByTodolist(userInformation: JWTDecoded, todolistId: number, limit: number, offset: number) {
-    const todo: Array<any> = await this.todoRepository
-      .createQueryBuilder('todo')
-      .leftJoinAndSelect('todo.todolist', 'todolist')
-      .leftJoinAndSelect('todolist.user', 'user')
-      .select('todo.id', 'id')
-      .addSelect('todo.message', 'message')
-      .addSelect('todo.status', 'status')
-      .where('todolist.id = :todolistId', { todolistId })
-      .andWhere('user.id = :userId', { userId: userInformation.id })
-      .offset(offset)
-      .limit(limit)
-      .execute();
+    const userId = userInformation.id;
+    
+    const todo = await this.todoRepository.find({
+      where: {
+        todolist: {
+          id: todolistId,
+          user: {
+            id: userId
+          }
+        }
+      },
+      skip: offset,
+      take: limit,
+    });
 
     return parseResponse(0,
       'TL',
       200,
       'success',
-      todo);
+      todo.map(todoMap));
   }
 }
