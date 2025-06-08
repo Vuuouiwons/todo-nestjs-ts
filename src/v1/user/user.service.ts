@@ -18,15 +18,16 @@ export class UserService {
   async register(registerBody: RegisterDto) {
     const username: string = registerBody.username;
     const password: string = registerBody.password;
+    const isUserExist = await this.usersRepository.findOne({
+      where: {
+        username
+      }
+    });
+
+    if (isUserExist)
+      throw new HttpException('username exist', HttpStatus.BAD_REQUEST);
 
     const hash: string = hashSync(password, 10)
-
-    const isUserExist = await this.usersRepository.findOneBy({ username });
-
-    if (isUserExist) {
-      throw new HttpException('username exist', HttpStatus.BAD_REQUEST);
-    }
-
     const newUser = new User();
     newUser.username = username;
     newUser.password = hash;
@@ -42,11 +43,15 @@ export class UserService {
 
     const unauthenticatedMessage = "username or password doesn't exist";
 
-    const userInformation: User | null = await this.usersRepository.findOneBy({ username });
+    const userInformation: User | null = await this.usersRepository.findOne({
+      where: {
+        username
+      }
+    });
 
-    if (userInformation === null || !compareSync(password, userInformation.password)) {
+    if (!userInformation || !compareSync(password, userInformation.password))
       throw new HttpException(unauthenticatedMessage, HttpStatus.UNAUTHORIZED);
-    }
+    
 
     const jwtData: jwtGenerateI = {
       id: userInformation.id,
@@ -54,6 +59,10 @@ export class UserService {
     }
     const token = jwtGenerate(jwtData)
 
-    return parseResponse(0, 'RE', 200, 'OK', { token });
+    return parseResponse(0,
+      'RE',
+      200,
+      'OK',
+      { token });
   }
 }
