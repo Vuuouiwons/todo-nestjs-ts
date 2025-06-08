@@ -18,11 +18,11 @@ RUN npm install --only=production
 
 FROM node:lts-alpine3.22 AS prod
 
-WORKDIR /usr/local/bin
+WORKDIR /usr/local/bin/app
 
 COPY --from=build_js /usr/local/bin/build/dist ./dist
 COPY --from=build_depedency /usr/local/bin/build/node_modules ./node_modules
 
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 
-CMD [ "/usr/local/bin/dist/main.js" ]
+CMD [ "/usr/local/bin/app/dist/main.js" ]
