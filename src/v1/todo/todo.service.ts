@@ -1,26 +1,102 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { CreateTodoDto, UpdateTodoDto } from './dto';
+
+
+import { Todo } from './entities/todo.entity';
+import { Todolist } from '../todolists/entities/todolist.entity';
+import { JWTDecoded } from '../authorization/authorization.interface';
+import { parseResponse } from '../dto/response';
+import { todoMap } from './mappings';
 
 @Injectable()
 export class TodoService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  constructor(
+    @InjectRepository(Todo) private readonly todoRepository: Repository<Todo>,
+    @InjectRepository(Todolist) private readonly todolistsRepository: Repository<Todolist>
+  ) { }
+
+  async create(userInformation: JWTDecoded,
+    todolistId: number,
+    createTodoDto: CreateTodoDto) {
+    const userId = userInformation.id;
+    const todoMessage = createTodoDto.message;
+    const todolist = await this.todolistsRepository.findOne({
+      where: {
+        id: todolistId,
+        user: { id: userId },
+      },
+    });
+
+    if (!todolist) {
+      throw new HttpException('todolist not found', HttpStatus.NOT_FOUND);
+    }
+
+    const newTodo = new Todo();
+
+    newTodo.todolist = { id: todolistId } as Todolist;
+    newTodo.message = todoMessage;
+
+    const newTodoStatus = todoMap(await this.todoRepository.save(newTodo));
+    return parseResponse(0, 'TO', HttpStatus.CREATED, 'success', newTodoStatus);
   }
 
-  findAll() {
-    return `This action returns all todo`;
+  async update(userInformation: JWTDecoded,
+    todolistId: number,
+    todoId: number,
+    updateTodoDto: UpdateTodoDto) {
+
+    const userId = userInformation.id;
+
+    let todo = await this.todoRepository.findOne({
+      where: {
+        id: todoId,
+        todolist: {
+          id: todolistId,
+          user: {
+            id: userId
+          },
+        },
+      },
+      relations: ['todolist', 'todolist.user'],
+    });
+
+    if (!todo) {
+      throw new HttpException('todo not found', HttpStatus.NOT_FOUND);
+    }
+
+    Object.assign(todo, updateTodoDto);
+
+    const todoStatus = todoMap(await this.todoRepository.save(todo));
+
+    return parseResponse(0, 'TO', HttpStatus.CREATED, '', todoStatus);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
-  }
+  async remove(userInformation: JWTDecoded,
+    todolistId: number,
+    todoId: number) {
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
-  }
+    const userId = userInformation.id;
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+    const todo = await this.todoRepository.findOne({
+      where: {
+        id: todoId,
+        todolist: {
+          id: todolistId,
+          user: {
+            id: userId
+          }
+        }
+      },
+      relations: ['todolist', 'todolist.user']
+    })
+
+    if (!todo) throw new HttpException('todo not found', HttpStatus.NOT_FOUND);
+
+    const todoDeleteStatus = await this.todoRepository.remove([todo]);
+
+    return parseResponse(0, 'TO', 204, 'ok', todoDeleteStatus);
   }
 }

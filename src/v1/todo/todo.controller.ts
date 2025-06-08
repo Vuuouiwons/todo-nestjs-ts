@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+
+import { CreateTodoDto, UpdateTodoDto } from './dto';
 import { TodoService } from './todo.service';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
 
-@Controller('todo')
+import { Authorization } from '../authorization/authorization.decorator';
+import { JWTDecoded } from '../authorization/authorization.interface';
+
+@Controller('todolists/:todolistId/todos')
 export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
-
-  @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todoService.create(createTodoDto);
+  constructor(private readonly todoService: TodoService) {
   }
 
-  @Get()
-  findAll() {
-    return this.todoService.findAll();
+  @HttpCode(HttpStatus.CREATED)
+  @Post('')
+  create(@Authorization() userInformation: JWTDecoded,
+    @Param('todolistId') todolistId: string,
+    @Body() createTodoDto: CreateTodoDto) {
+    return this.todoService.create(userInformation, +todolistId, createTodoDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
+  @HttpCode(HttpStatus.CREATED)
+  @Put(':todoId')
+  update(@Authorization() userInformation: JWTDecoded,
+    @Param('todolistId') todolistId: string,
+    @Param('todoId') todoId: string,
+    @Body() updateTodoDto: UpdateTodoDto) {
+    return this.todoService.update(userInformation, +todolistId, +todoId, updateTodoDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todoService.update(+id, updateTodoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todoService.remove(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':todoId')
+  remove(@Authorization() userInformation: JWTDecoded,
+    @Param('todolistId') todolistId: string,
+    @Param('todoId') todoId: string) {
+    return this.todoService.remove(userInformation, +todolistId, +todoId);
   }
 }
