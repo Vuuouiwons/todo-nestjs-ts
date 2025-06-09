@@ -21,9 +21,13 @@ export class TodolistsService {
   ) { }
 
   async create(userInformation: JWTDecoded, createTodolistDto: CreateTodolistDto) {
+    const userId = userInformation.id;
+
     const newTodolist = new Todolist();
     newTodolist.title = createTodolistDto.title;
-    newTodolist.user = { id: userInformation.id } as User;
+    newTodolist.user = {
+      id: userId
+    } as User;
 
     const newTodolistStatus = await this.todolistsRepository.save(newTodolist);
 
@@ -37,27 +41,35 @@ export class TodolistsService {
   async findAllTodolist(userInformation: JWTDecoded,
     limit: number = 20,
     offset: number = 0) {
-    const newTodolist = new Todolist();
-    newTodolist.user = { id: userInformation.id } as User;
+
+    const userId = userInformation.id;
 
     const todolist = await this.todolistsRepository.find({
+      where: {
+        user: {
+          id: userId
+        }
+      },
       take: limit,
       skip: offset,
-      where: newTodolist
     });
 
     return parseResponse(0,
       'TL',
-      200,
+      HttpStatus.OK,
       '',
       todolist.map(todolistMap));
   }
 
   async update(userInformation: JWTDecoded, todolistId: number, updateTodolistDto: UpdateTodolistDto) {
+    const userId = userInformation.id;
+
     const todolist = await this.todolistsRepository.findOne({
       where: {
         id: todolistId,
-        user: { id: userInformation.id }
+        user: {
+          id: userId
+        }
       }
     })
 
@@ -68,7 +80,11 @@ export class TodolistsService {
 
     const updatedRow = await this.todolistsRepository.save(todolist)
 
-    return parseResponse(0, 'TL', HttpStatus.CREATED, '', todolistMap(updatedRow));
+    return parseResponse(0,
+      'TL',
+      HttpStatus.OK,
+      '',
+      todolistMap(updatedRow));
   }
 
   async remove(userInformation: JWTDecoded, todolistId: number) {
@@ -99,6 +115,13 @@ export class TodolistsService {
 
     const todoStatus = await this.todoRepository.remove(todo);
     const todolistStatus = await this.todolistsRepository.remove(todolist);
+
+    return parseResponse(0,
+      'TL',
+      HttpStatus.NO_CONTENT,
+      '',
+      null
+    );
   }
 
   async findAllTodoByTodolist(userInformation: JWTDecoded, todolistId: number, limit: number, offset: number) {
@@ -119,7 +142,7 @@ export class TodolistsService {
 
     return parseResponse(0,
       'TL',
-      200,
+      HttpStatus.OK,
       'success',
       todo.map(todoMap));
   }
