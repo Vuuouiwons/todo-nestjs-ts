@@ -29,7 +29,7 @@ export class TodolistsService {
 
     return parseResponse(0,
       'TL',
-      201,
+      HttpStatus.CREATED,
       '',
       todolistMap(newTodolistStatus));
   }
@@ -68,7 +68,7 @@ export class TodolistsService {
 
     const updatedRow = await this.todolistsRepository.save(todolist)
 
-    return parseResponse(0, 'TL', 201, '', todolistMap(updatedRow));
+    return parseResponse(0, 'TL', HttpStatus.CREATED, '', todolistMap(updatedRow));
   }
 
   async remove(userInformation: JWTDecoded, todolistId: number) {
