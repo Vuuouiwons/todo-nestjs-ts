@@ -41,7 +41,11 @@ export class TodoService {
 
     const newTodoStatus = await this.todoRepository.save(newTodo);
 
-    return parseResponse(0, 'TO', HttpStatus.CREATED, 'success', todoMap(newTodoStatus));
+    return parseResponse(0,
+      'TO',
+      HttpStatus.CREATED,
+      'success',
+      todoMap(newTodoStatus));
   }
 
   async update(userInformation: JWTDecoded,
@@ -72,7 +76,11 @@ export class TodoService {
 
     const todoStatus = await this.todoRepository.save(todo);
 
-    return parseResponse(0, 'TO', HttpStatus.OK, '', todoMap(todoStatus));
+    return parseResponse(0,
+      'TO',
+      HttpStatus.OK,
+      '',
+      todoMap(todoStatus));
   }
 
   async remove(userInformation: JWTDecoded,
@@ -98,6 +106,10 @@ export class TodoService {
 
     await this.todoRepository.remove([todo]);
 
-    return parseResponse(0, 'TO', HttpStatus.NO_CONTENT, 'ok', null);
+    return parseResponse(0,
+      'TO',
+      HttpStatus.NO_CONTENT,
+      '',
+      null);
   }
 }
