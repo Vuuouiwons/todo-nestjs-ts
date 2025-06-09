@@ -72,7 +72,7 @@ export class TodoService {
 
     const todoStatus = await this.todoRepository.save(todo);
 
-    return parseResponse(0, 'TO', HttpStatus.CREATED, '', todoMap(todoStatus));
+    return parseResponse(0, 'TO', HttpStatus.OK, '', todoMap(todoStatus));
   }
 
   async remove(userInformation: JWTDecoded,
@@ -98,6 +98,6 @@ export class TodoService {
 
     await this.todoRepository.remove([todo]);
 
-    return parseResponse(0, 'TO', 204, 'ok', null);
+    return parseResponse(0, 'TO', HttpStatus.NO_CONTENT, 'ok', null);
   }
 }
