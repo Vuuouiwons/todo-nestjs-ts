@@ -11,6 +11,7 @@ import { Todolist } from './entities/todolist.entity';
 import { User } from '../user/entities/user.entity';
 
 import { todoMap } from '../todo/mappings';
+import { todolistMap } from './mappings';
 
 @Injectable()
 export class TodolistsService {
@@ -24,15 +25,13 @@ export class TodolistsService {
     newTodolist.title = createTodolistDto.title;
     newTodolist.user = { id: userInformation.id } as User;
 
-    const newTodolistId = (await this.todolistsRepository.save(newTodolist)).id;
-
-    const payload = { id: newTodolistId };
+    const newTodolistStatus = await this.todolistsRepository.save(newTodolist);
 
     return parseResponse(0,
       'TL',
       201,
       '',
-      payload);
+      todolistMap(newTodolistStatus));
   }
 
   async findAllTodolist(userInformation: JWTDecoded,
@@ -41,26 +40,17 @@ export class TodolistsService {
     const newTodolist = new Todolist();
     newTodolist.user = { id: userInformation.id } as User;
 
-    const rawData = await this.todolistsRepository.find({
+    const todolist = await this.todolistsRepository.find({
       take: limit,
       skip: offset,
       where: newTodolist
-    });
-
-    const data = rawData.map((d) => {
-      const mappedData = {
-        id: d.id,
-        title: d.title,
-        status: d.status
-      }
-      return mappedData;
     });
 
     return parseResponse(0,
       'TL',
       200,
       '',
-      data);
+      todolist.map(todolistMap));
   }
 
   async update(userInformation: JWTDecoded, todolistId: number, updateTodolistDto: UpdateTodolistDto) {
@@ -78,7 +68,7 @@ export class TodolistsService {
 
     const updatedRow = await this.todolistsRepository.save(todolist)
 
-    return parseResponse(0, 'TL', 201, '', updatedRow);
+    return parseResponse(0, 'TL', 201, '', todolistMap(updatedRow));
   }
 
   async remove(userInformation: JWTDecoded, todolistId: number) {
@@ -113,7 +103,7 @@ export class TodolistsService {
 
   async findAllTodoByTodolist(userInformation: JWTDecoded, todolistId: number, limit: number, offset: number) {
     const userId = userInformation.id;
-    
+
     const todo = await this.todoRepository.find({
       where: {
         todolist: {
