@@ -39,8 +39,9 @@ export class TodoService {
     newTodo.todolist = { id: todolistId } as Todolist;
     newTodo.message = todoMessage;
 
-    const newTodoStatus = todoMap(await this.todoRepository.save(newTodo));
-    return parseResponse(0, 'TO', HttpStatus.CREATED, 'success', newTodoStatus);
+    const newTodoStatus = await this.todoRepository.save(newTodo);
+
+    return parseResponse(0, 'TO', HttpStatus.CREATED, 'success', todoMap(newTodoStatus));
   }
 
   async update(userInformation: JWTDecoded,
@@ -69,9 +70,9 @@ export class TodoService {
 
     Object.assign(todo, updateTodoDto);
 
-    const todoStatus = todoMap(await this.todoRepository.save(todo));
+    const todoStatus = await this.todoRepository.save(todo);
 
-    return parseResponse(0, 'TO', HttpStatus.CREATED, '', todoStatus);
+    return parseResponse(0, 'TO', HttpStatus.CREATED, '', todoMap(todoStatus));
   }
 
   async remove(userInformation: JWTDecoded,
@@ -95,8 +96,8 @@ export class TodoService {
 
     if (!todo) throw new HttpException('todo not found', HttpStatus.NOT_FOUND);
 
-    const todoDeleteStatus = await this.todoRepository.remove([todo]);
+    await this.todoRepository.remove([todo]);
 
-    return parseResponse(0, 'TO', 204, 'ok', todoDeleteStatus);
+    return parseResponse(0, 'TO', 204, 'ok', null);
   }
 }
