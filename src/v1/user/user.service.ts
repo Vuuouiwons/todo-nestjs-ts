@@ -35,6 +35,11 @@ export class UserService {
     if (!await this.usersRepository.save(newUser)) {
       throw new HttpException('database error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    return parseResponse(0,
+      'RE',
+      HttpStatus.CREATED,
+      '',
+      null);
   }
 
   async login(loginBody: LoginDto) {
@@ -51,7 +56,7 @@ export class UserService {
 
     if (!userInformation || !compareSync(password, userInformation.password))
       throw new HttpException(unauthenticatedMessage, HttpStatus.UNAUTHORIZED);
-    
+
 
     const jwtData: jwtGenerateI = {
       id: userInformation.id,
@@ -61,7 +66,7 @@ export class UserService {
 
     return parseResponse(0,
       'RE',
-      200,
+      HttpStatus.OK,
       'OK',
       { token });
   }

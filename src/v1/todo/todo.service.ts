@@ -26,7 +26,9 @@ export class TodoService {
     const todolist = await this.todolistsRepository.findOne({
       where: {
         id: todolistId,
-        user: { id: userId },
+        user: {
+          id: userId
+        },
       },
     });
 
