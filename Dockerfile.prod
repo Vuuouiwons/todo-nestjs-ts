@@ -1,0 +1,20 @@
+FROM node:lts-alpine3.22 AS build
+
+WORKDIR /usr/local/build
+
+COPY . .
+
+RUN npm install
+
+RUN npm install -g @yao-pkg/pkg
+
+RUN npm run build
+
+RUN pkg .
+
+FROM scratch AS prod
+
+COPY --from=build /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
+COPY --from=build /usr/local/build/bin/todo-nestjs-ts /
+
+ENTRYPOINT [ "/todo-nestjs-ts" ]

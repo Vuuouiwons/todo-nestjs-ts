@@ -82,5 +82,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "bin": "./dist/main.js",
+  "pkg": {
+    "targets": [
+      "node22-alpine-x64"
+    ],
+    "outputPath": "./bin"
   }
 }
