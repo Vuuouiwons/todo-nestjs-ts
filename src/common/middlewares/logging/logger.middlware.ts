@@ -1,8 +1,6 @@
 import { Injectable, NestMiddleware,Logger} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
-const jwt = require('jsonwebtoken');
-
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
