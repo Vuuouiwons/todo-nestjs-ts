@@ -1,10 +1,10 @@
+import { DataSource } from 'typeorm';
 import { Module } from '@nestjs/common';
 
 import { Todo } from './todo.entity';
 import { Todolist } from './todolist.entity';
 import { User } from './user.entity';
 
-import { DataSource } from 'typeorm';
 
 const databaseProviders = [
   {
