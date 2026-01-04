@@ -7,7 +7,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-
     const isHttpException = exception instanceof HttpException;
     const status = isHttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const exceptionResponse = isHttpException ? exception.getResponse() : 'Internal Server Error';
@@ -31,8 +30,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       errorId
     };
 
-    if (status >= 500) {
-      console.error(`ERROR: ${message}`);
+    if (status >= 500 && status != 502) {
+      console.error(`ERROR: ${message} | ${exception.name} | ${exception.message}`);
 
       return response
         .status(status)
