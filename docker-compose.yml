@@ -12,8 +12,8 @@ services:
     container_name: pg-database
     image: postgres:17-alpine
     shm_size: 128mb
-    volumes:
-      - todolist-data:/var/lib/postgresql/data
+    # volumes:
+      # - todolist-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
