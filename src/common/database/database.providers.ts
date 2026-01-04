@@ -22,7 +22,7 @@ const databaseProviders = [
           Todolist,
           Todo
         ],
-        synchronize: true ? process.env.ENVIRONMENT === 'dev' : false,
+        synchronize: true ? process.env.ENVIRONMENT === 'dev' || process.env.TEST_PROD == 'yes' : false,
       });
 
       return dataSource.initialize();
