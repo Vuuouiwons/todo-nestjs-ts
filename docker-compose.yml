@@ -23,7 +23,6 @@ services:
     networks:
       - todolist
     develop:
-      
 
   backend:
     container_name: "todolist-backend"
@@ -43,12 +42,12 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_AGE: ${JWT_AGE}
       PORT: ${PORT}
-    
+
     ports:
       - 3000:3000
     networks:
       - todolist
-    
+
     develop:
       watch:
         - action: sync
@@ -67,7 +66,6 @@ networks:
 volumes:
   todolist-data:
     name: "todolist"
-
 # prod image test
 # docker build -t nestjs-todolist:prod .
-# docker run --rm -p 3000:3000 --network todolist nestjs-todolist:prod
+# docker run --rm --env-file .env.prod -p 3100:3000 --network todolist nestjs-todolist:prod
