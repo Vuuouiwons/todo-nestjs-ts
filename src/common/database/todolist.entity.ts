@@ -20,8 +20,8 @@ export class Todolist {
     updatedAt!: Date
 
     @ManyToOne(type => User, user => user.todolist)
-    user!: User | number
+    user!: User
 
     @OneToMany(type => Todo, todo => todo.todolist)
-    todo!: Todo | number
+    todo!: Todo[]
 }

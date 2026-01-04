@@ -19,5 +19,5 @@ export class Todo {
     updatedAt!: Date
 
     @ManyToOne(type => Todolist, todolist => todolist.todo)
-    todolist!: Todolist | number
+    todolist!: Todolist
 }
