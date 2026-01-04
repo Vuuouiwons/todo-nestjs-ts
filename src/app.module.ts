@@ -5,22 +5,20 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './common/database/database.providers';
 import { LoggerMiddleware } from './middlewares/logging/logger.middlware';
-import { UserController } from './modules/resources/users/user.controller';
-import { UserService } from './modules/resources/users/user.service';
 import { RequestInterceptor } from './interceptors/request/request.interceptor';
 import { HttpExceptionFilter } from './exceptionFilters/http-exception/http-exception.filter';
+import { UsersModule } from './modules/resources/users/user.module';
 
 @Module({
   imports: [
-    DatabaseModule
+    DatabaseModule,
+    UsersModule
   ],
   controllers: [
     AppController,
-    UserController,
   ],
   providers: [
     AppService,
-    UserService,
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestInterceptor,
