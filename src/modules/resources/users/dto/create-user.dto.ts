@@ -1,7 +1,9 @@
 import { Transform } from 'class-transformer';
 import { IsString, IsEmail, MinLength, IsNotEmpty, MaxLength, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SignUpDto {
+    @ApiProperty({ example: 'foo_bar', description: 'Any username' })
     @Transform(({ value }) => value?.trim().toLowerCase())
     @IsString()
     @IsNotEmpty({ message: 'username is required' })
@@ -16,10 +18,12 @@ export class SignUpDto {
     })
     username: string;
 
+    @ApiProperty({ example: 'user@example.com', description: 'User email address' })
     @IsEmail({}, { message: 'invalid email address' })
     @IsNotEmpty({ message: 'email is required' })
     email: string;
 
+    @ApiProperty({ example: 'T3sting!', description: 'password must include uppercase, lowercase, number, special character, and no spaces', minLength: 8, maxLength: 128 })
     @IsString()
     @IsNotEmpty({ message: 'password is required' })
     @MinLength(8, { message: 'password must be at least 8 characters' })
@@ -32,10 +36,12 @@ export class SignUpDto {
 }
 
 export class SignInDto {
+    @ApiProperty({ example: 'user@example.com', description: 'User email address' })
     @IsEmail({}, { message: 'invalid email address' })
     @IsNotEmpty({ message: 'email is required' })
     email: string;
 
+    @ApiProperty({ example: 'T3sting!', description: 'password must include uppercase, lowercase, number, special character, and no spaces', minLength: 8, maxLength: 128 })
     @IsString()
     @IsNotEmpty({ message: 'password is required' })
     @MinLength(12, { message: 'password must be at least 12 characters' })

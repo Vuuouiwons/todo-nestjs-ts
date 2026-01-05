@@ -1,11 +1,13 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Todolist } from "./todolist.entity"
+import { ApiProperty } from "@nestjs/swagger"
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
     id!: number
 
+    @ApiProperty({ example: 'foo_bar', description: 'username' })
     @Column({ length: 24 })
     username!: string
 
