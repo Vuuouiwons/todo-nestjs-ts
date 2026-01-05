@@ -63,13 +63,12 @@ export class UserService {
     };
   }
 
-  async findOne() {
-    const id = 1;
-
-    const user = await this.userRepo.findById(id) as User;
+  async findOne(user: User) {
+    const id = user.id;
+    const fetchedUser = await this.userRepo.findById(id) as User;
 
     return {
-      username: user.username
+      username: fetchedUser.username
     }
   }
 }

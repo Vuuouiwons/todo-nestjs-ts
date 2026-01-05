@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseInterceptors, Version, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseInterceptors, Version, HttpCode, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpDto, SignInDto } from './dto/create-user.dto';
 import { IdentityInterceptor } from 'src/interceptors/identity/identity.interceptor';
@@ -25,7 +25,7 @@ export class UserController {
   @Get('/me')
   @UseGuards(AuthGuard)
   @UseInterceptors(IdentityInterceptor)
-  async findOne() {
-    return this.userService.findOne();
+  async findOne(@Req() request) {
+    return this.userService.findOne(request.user);
   }
 }
