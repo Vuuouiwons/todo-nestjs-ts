@@ -21,7 +21,15 @@ async function bootstrap() {
     )
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  const options = {
+    autoTagControllers: true,
+    operationIdFactory: (
+      controllerKey: string,
+      methodKey: string
+    ) => methodKey,
+  };
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('docs', app, documentFactory);
 
   app.enableVersioning({

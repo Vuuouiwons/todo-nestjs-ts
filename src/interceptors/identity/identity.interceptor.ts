@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { UserRepo } from 'src/modules/resources/users/repository/user.repo';
+import { UserRepo } from 'src/modules/resources/user/repository/user.repo';
 
 @Injectable()
 export class IdentityInterceptor implements NestInterceptor {
