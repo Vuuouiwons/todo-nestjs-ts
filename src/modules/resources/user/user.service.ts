@@ -21,12 +21,10 @@ export class UserService {
 
   async updateUser(user: User, body: UpdateUserDto): Promise<ResponseUserMeDto> {
     return await this.dataSource.transaction(async (manager) => {
-      const updatedUser = manager.merge(User, user, body);
-
-      manager.save(updatedUser);
+      const updatedUser = await this.userRepo.update(user, body);
 
       return await {
-        username: updatedUser.username as string
+        username: updatedUser.username
       }
     });
   }

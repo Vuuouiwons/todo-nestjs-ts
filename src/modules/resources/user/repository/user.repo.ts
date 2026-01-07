@@ -37,4 +37,12 @@ export class UserRepo {
             email
         });
     }
+
+    async update(user: User, newUserPartial: Partial<User>, manager?: EntityManager) {
+        const repo = this.getManager(manager);
+
+        const updatedUser = repo.merge(user, newUserPartial);
+
+        return repo.save(updatedUser);
+    }
 }

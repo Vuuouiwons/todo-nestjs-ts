@@ -7,7 +7,7 @@ import { plainToInstance } from 'class-transformer';
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, { metatype }: ArgumentMetadata) {
     if (!value) throw new BadRequestException('Request missing body');
-    console.log(value);
+
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }

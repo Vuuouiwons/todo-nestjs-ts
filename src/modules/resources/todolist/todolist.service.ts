@@ -1,19 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateTodolistDto } from './dto/create-todolist.dto';
 import { UpdateTodolistDto } from './dto/update-todolist.dto';
 import { TodolistRepo } from './repository/todolist.repo';
+import { DataSource } from 'typeorm';
+import { TodolistI } from './interfaces/todolist.interface';
+import { User } from 'src/common/database/user.entity';
+import { Todolist } from 'src/common/database/todolist.entity';
+import { ResponseTodolistDto } from './dto/response-todolist.dto';
 
 @Injectable()
 export class TodolistService {
-  constructor(private readonly todolistRepo: TodolistRepo) {
+  constructor(
+    @Inject('DATA_SOURCE') private dataSource: DataSource,
+    private readonly todolistRepo: TodolistRepo,
+  ) {
 
   }
-  create(createTodolistDto: CreateTodolistDto) {
-    return 'This action adds a new todolist';
+  async create(user: User, body: CreateTodolistDto): Promise<ResponseTodolistDto> {
+    return await this.dataSource.transaction(async (manager) => {
+      const todolistData: TodolistI = {
+        title: body.title,
+        status: false,
+        user: user
+      }
+
+      const todolist = await this.todolistRepo.create(todolistData, manager);
+
+      const parsedTodolsit = {
+        id: todolist.id,
+        title: todolist.title,
+        status: todolist.status,
+      }
+
+      return parsedTodolsit;
+    });
   }
 
-  findAll() {
-    return `This action returns all todolist`;
+  async findAll(user: User): Promise<ResponseTodolistDto[]> {
+    return await this.dataSource.transaction(async (manager) => {
+      const todolists = await this.todolistRepo.findAll(user, manager);
+
+      const parsedTodolists = todolists.map((todolist) => {
+        return {
+          id: todolist.id,
+          status: todolist.status,
+          title: todolist.title,
+        }
+      });
+
+      return await parsedTodolists;
+    });
   }
 
   findOne(id: number) {
