@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SignInResponseDto {
+export class ResponseSignInDto {
     @ApiProperty({description: 'bearer token'})
     token: string;
 }

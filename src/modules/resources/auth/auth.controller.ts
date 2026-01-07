@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { SignUpDto, SignInDto } from './dto/create-auth.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { ValidationPipe } from 'src/pipes/validation/validation.pipe';
-import { SignInResponseDto } from './dto/response-auth.dto';
+import { ResponseSignInDto } from './dto/response-auth.dto';
 import {
   ApiCreatedResponse,
   ApiConflictResponse,
@@ -34,9 +34,9 @@ export class AuthController {
   @Post('/login')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Login' })
-  @ApiCreatedResponse({ description: 'Login success', type: SignInResponseDto })
+  @ApiCreatedResponse({ description: 'Login success', type: ResponseSignInDto })
   @ApiBadRequestResponse({ description: loginError })
-  async login(@Body(new ValidationPipe()) body: SignInDto): Promise<SignInResponseDto> {
+  async login(@Body(new ValidationPipe()) body: SignInDto): Promise<ResponseSignInDto> {
     return this.authService.signIn(body);
   }
 }

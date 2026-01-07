@@ -5,7 +5,7 @@ import { SecurityService } from 'src/libs/security/security.service';
 import { DataSource } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
 import { loginError } from 'src/common/constants';
-import { SignInResponseDto } from './dto/response-auth.dto';
+import { ResponseSignInDto } from './dto/response-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +34,7 @@ export class AuthService {
 
   }
 
-  async signIn(body: SignInDto): Promise<SignInResponseDto> {
+  async signIn(body: SignInDto): Promise<ResponseSignInDto> {
     const { email, password } = body
 
     const user = await this.userRepo.findByEmail(email);
