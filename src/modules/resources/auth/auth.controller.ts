@@ -12,6 +12,7 @@ import {
   ApiNotFoundResponse
 } from '@nestjs/swagger';
 
+@ApiUnprocessableEntityResponse({ description: 'Payload validation failed' })
 @Controller({
   path: 'auth',
   version: '1'
@@ -23,21 +24,19 @@ export class AuthController {
 
   @Post('/register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'register user' })
-  @ApiCreatedResponse({ description: 'user registered' })
-  @ApiConflictResponse({ description: 'email already registered' })
-  @ApiUnprocessableEntityResponse({ description: 'payload validation failed' })
+  @ApiOperation({ summary: 'Register user' })
+  @ApiCreatedResponse({ description: 'User registered' })
+  @ApiConflictResponse({ description: 'Email already registered' })
   async signUp(@Body(new ValidationPipe()) body: SignUpDto): Promise<void> {
     return this.authService.signUp(body);
   }
 
   @Post('/login')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'login' })
-  @ApiCreatedResponse({ description: 'login success', type: SignInResponseDto })
-  @ApiNotFoundResponse({ description: 'email or password not registered' })
-  @ApiBadRequestResponse({ description: 'email or password incorrect' })
-  async signIn(@Body() body: SignInDto): Promise<SignInResponseDto> {
+  @ApiOperation({ summary: 'Login' })
+  @ApiCreatedResponse({ description: 'Login success', type: SignInResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid credentials' })
+  async signIn(@Body(new ValidationPipe()) body: SignInDto): Promise<SignInResponseDto> {
     return this.authService.signIn(body);
   }
 }

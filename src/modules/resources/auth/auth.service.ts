@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { SignUpDto, SignInDto } from './dto/create-auth.dto';
 import { UserRepo } from '../user/repository/user.repo';
 import { SecurityService } from 'src/libs/security/security.service';
@@ -21,7 +21,7 @@ export class AuthService {
 
       const isEmailRegistered = await this.userRepo.findByEmail(email)
 
-      if (isEmailRegistered !== null) throw new BadRequestException('email already registered');
+      if (isEmailRegistered !== null) throw new ConflictException('email already registered');
 
       const hashedPassword = await this.securityService.hashPassword(password);
 
