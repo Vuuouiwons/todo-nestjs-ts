@@ -1,5 +1,6 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { unauthorizedMessage } from 'src/common/constants';
 import { UserRepo } from 'src/modules/resources/user/repository/user.repo';
 
 @Injectable()
@@ -10,6 +11,8 @@ export class IdentityInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest();
     const user = await this.userRepo.findById(request.user.id);
+
+    if (!user) throw new NotFoundException('User not found')
 
     request.user = user;
 

@@ -11,8 +11,10 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { loginError, UnprocessableEntityErrorMessage } from 'src/common/constants';
+import { requestBodyMissingMessage } from 'src/common/constants';
 
 @ApiUnprocessableEntityResponse({ description: UnprocessableEntityErrorMessage })
+@ApiBadRequestResponse({ description: requestBodyMissingMessage })
 @Controller({
   path: 'auth',
   version: '1'

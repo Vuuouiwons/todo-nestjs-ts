@@ -1,20 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { UserRepo } from './repository/user.repo';
 import { User } from 'src/common/database/user.entity';
 import { ResponseUserMeDto } from './dto/response-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { DataSource } from 'typeorm';
+import { DeleteUserDto } from './dto/delete-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepo: UserRepo,
-  ) { }  
+    @Inject('DATA_SOURCE') private dataSource: DataSource,
+  ) { }
 
   async userMe(user: User): Promise<ResponseUserMeDto> {
-    const id = user.id;
-    const fetchedUser = await this.userRepo.findById(id) as User;
-
     return {
-      username: fetchedUser.username
+      username: user.username
     }
+  }
+
+  async updateUser(user: User, body: UpdateUserDto): Promise<ResponseUserMeDto> {
+    return await this.dataSource.transaction(async (manager) => {
+      const updatedUser = manager.merge(User, user, body);
+
+      manager.save(updatedUser);
+
+      return await {
+        username: updatedUser.username as string
+      }
+    });
+  }
+
+  async deleteUser(user: User, body: DeleteUserDto): Promise<void> {
+    return await this.dataSource.transaction(async (manager) => {
+      if (user.username !== body.username) {
+        throw new BadRequestException('Confirmation username does not match');
+      }
+
+      await manager.delete(User, user.id);
+    });
   }
 }

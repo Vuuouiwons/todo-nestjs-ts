@@ -3,7 +3,3 @@ export interface UserI {
     email: string
     password: string
 }
-
-export interface resSignInI {
-    token: string
-}
