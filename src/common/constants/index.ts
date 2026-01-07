@@ -1,2 +1,3 @@
-export const loginError = 'email or password incorrect';
-export const unauthorizedMessage = 'unauthorized';
+export const loginError = 'Invalid credentials';
+export const unauthorizedMessage = 'Unauthorized';
+export const UnprocessableEntityErrorMessage = "Payload validation failed";

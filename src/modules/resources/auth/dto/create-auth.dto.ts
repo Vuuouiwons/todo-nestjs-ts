@@ -44,7 +44,7 @@ export class SignInDto {
     @ApiProperty({ example: 'T3sting!', description: 'password must include uppercase, lowercase, number, special character, and no spaces', minLength: 8, maxLength: 128 })
     @IsString()
     @IsNotEmpty({ message: 'password is required' })
-    @MinLength(12, { message: 'password must be at least 12 characters' })
+    @MinLength(8, { message: 'password must be at least 8 characters' })
     @MaxLength(128, { message: 'password must be at most 128 characters' })
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=\-])[^\s]+$/, {
         message:
