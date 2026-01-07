@@ -1,12 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Req, UnprocessableEntityException } from '@nestjs/common';
 import { TodolistService } from './todolist.service';
 import { CreateTodolistDto } from './dto/create-todolist.dto';
 import { UpdateTodolistDto } from './dto/update-todolist.dto';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { IdentityInterceptor } from 'src/interceptors/identity/identity.interceptor';
+import { ValidationPipe } from 'src/pipes/validation/validation.pipe';
+import { ApiUnprocessableEntityResponse, ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { UnprocessableEntityErrorMessage, requestBodyMissingMessage, unauthorizedMessage } from 'src/common/constants';
+import { ResponseTodolistDto } from './dto/response-todolist.dto';
 
 @UseGuards(AuthGuard)
 @UseInterceptors(IdentityInterceptor)
+@ApiBearerAuth('access-token')
+@ApiUnprocessableEntityResponse({ description: UnprocessableEntityErrorMessage })
+@ApiBadRequestResponse({ description: requestBodyMissingMessage })
+@ApiUnauthorizedResponse({ description: unauthorizedMessage })
 @Controller({
   path: 'todolist', version: '1'
 })
@@ -14,14 +22,23 @@ export class TodolistController {
   constructor(private readonly todolistService: TodolistService) { }
 
   @Post()
+  @ApiCreatedResponse({
+    description: 'todolist created',
+    type: ResponseTodolistDto
+  })
   create(
     @Req() request,
-    @Body() createTodolistDto: CreateTodolistDto
+    @Body(new ValidationPipe()) createTodolistDto: CreateTodolistDto
   ) {
     return this.todolistService.create(request.user, createTodolistDto);
   }
 
   @Get()
+  @ApiOkResponse({
+    description: 'todolist retrived',
+    type: ResponseTodolistDto,
+    isArray: true
+  })
   findAll(@Req() request) {
     return this.todolistService.findAll(request.user);
   }
