@@ -9,9 +9,11 @@ import { RequestInterceptor } from './interceptors/request/request.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception/http-exception.filter';
 import { UserModule } from './modules/resources/user/user.module';
 import { AuthModule } from './modules/resources/auth/auth.module';
+import { TodolistModule } from './modules/resources/todolist/todolist.module';
 
 @Module({
   imports: [
+    TodolistModule,
     DatabaseModule,
     UserModule,
     AuthModule
