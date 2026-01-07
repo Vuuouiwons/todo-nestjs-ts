@@ -10,4 +10,4 @@ import { SecurityModule } from 'src/libs/security/security.module';
   controllers: [UserController],
   providers: [UserService, UserRepo],
 })
-export class UsersModule { }
+export class UserModule { }

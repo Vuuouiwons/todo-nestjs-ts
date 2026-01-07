@@ -14,57 +14,9 @@ export class UserService {
     private readonly userRepo: UserRepo,
     private readonly securityService: SecurityService,
     @Inject('DATA_SOURCE') private dataSource: DataSource,
-  ) { }
+  ) { }  
 
-  async signUp(body: SignUpDto) {
-    return await this.dataSource.transaction(async (manager) => {
-      const { username, email, password } = body
-
-
-      const isEmailRegistered = await this.userRepo.findByEmail(email)
-
-      if (isEmailRegistered !== null) throw new BadRequestException('email already registered');
-
-      const hashedPassword = await this.securityService.hashPassword(password);
-
-      await this.userRepo.create({
-        username,
-        password: hashedPassword,
-        email
-      }, manager);
-    });
-
-  }
-
-  async signIn(body: SignInDto): Promise<resSignInI> {
-    const { email, password } = body
-
-    const user = await this.userRepo.findByEmail(email);
-
-    if (!user) {
-      throw new BadRequestException(loginError);
-    }
-
-    const isPasswordMatching = await this.securityService.comparePassword(
-      password,
-      user.password
-    );
-
-    if (!isPasswordMatching) {
-      throw new BadRequestException(loginError);
-    }
-
-    const token = await this.securityService.generateToken({
-      id: user.id,
-      email: user.email
-    });
-
-    return {
-      token
-    };
-  }
-
-  async findOne(user: User) {
+  async userMe(user: User) {
     const id = user.id;
     const fetchedUser = await this.userRepo.findById(id) as User;
 
