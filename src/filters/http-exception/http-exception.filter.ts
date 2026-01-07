@@ -33,21 +33,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (status >= 500 && status != 502) {
       console.error(`ERROR: ${message} | ${exception.name} | ${exception.message}`);
 
+      const parsedError = {
+        meta,
+        message: "something went wrong, please try again."
+      };
+
       return response
         .status(status)
-        .json({
-          meta,
-          message: "something went wrong, please try again."
-        });
+        .json(parsedError);
     };
 
     if (status >= 400) {
+      const parsedError = { meta, message };
+
       return response
         .status(status)
-        .json({
-          meta,
-          message
-        });
+        .json(parsedError);
     }
   }
 }

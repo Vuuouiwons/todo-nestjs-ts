@@ -1,26 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, Inject } from '@nestjs/common';
+import { SignUpDto, SignInDto } from './dto/create-auth.dto';
+import { UserRepo } from '../user/repository/user.repo';
+import { SecurityService } from 'src/libs/security/security.service';
+import { DataSource } from 'typeorm';
+import { BadRequestException } from '@nestjs/common';
+import { loginError } from 'src/common/constants';
+import { SignInResponseDto } from './dto/response-auth.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly userRepo: UserRepo,
+    private readonly securityService: SecurityService,
+    @Inject('DATA_SOURCE') private dataSource: DataSource,
+  ) { }
+  async signUp(body: SignUpDto): Promise<void> {
+    return await this.dataSource.transaction(async (manager) => {
+      const { username, email, password } = body
+
+
+      const isEmailRegistered = await this.userRepo.findByEmail(email)
+
+      if (isEmailRegistered !== null) throw new BadRequestException('email already registered');
+
+      const hashedPassword = await this.securityService.hashPassword(password);
+
+      await this.userRepo.create({
+        username,
+        password: hashedPassword,
+        email
+      }, manager);
+    });
+
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async signIn(body: SignInDto): Promise<SignInResponseDto> {
+    const { email, password } = body
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const user = await this.userRepo.findByEmail(email);
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!user) {
+      throw new BadRequestException(loginError);
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const isPasswordMatching = await this.securityService.comparePassword(
+      password,
+      user.password
+    );
+
+    if (!isPasswordMatching) {
+      throw new BadRequestException(loginError);
+    }
+
+    const token = await this.securityService.generateToken({
+      id: user.id,
+      email: user.email
+    });
+
+    return {
+      token
+    };
   }
 }

@@ -7,12 +7,14 @@ import { DatabaseModule } from './common/database/database.providers';
 import { LoggerMiddleware } from './middlewares/logging/logger.middlware';
 import { RequestInterceptor } from './interceptors/request/request.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception/http-exception.filter';
-import { UsersModule } from './modules/resources/user/user.module';
+import { UserModule } from './modules/resources/user/user.module';
+import { AuthModule } from './modules/resources/auth/auth.module';
 
 @Module({
   imports: [
     DatabaseModule,
-    UsersModule
+    UserModule,
+    AuthModule
   ],
   controllers: [
     AppController,

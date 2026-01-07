@@ -2,6 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError, finalize, map } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
+import { WrappedResponseDto } from './request.interceptor.dto';
 
 @Injectable()
 export class RequestInterceptor implements NestInterceptor {
@@ -24,7 +25,7 @@ export class RequestInterceptor implements NestInterceptor {
           const { statusCode } = response;
           const { originalUrl, method } = request;
 
-          const parsedData = {
+          const parsedData: WrappedResponseDto<any> = {
             meta: {
               timestamp: new Date().toISOString(),
               statusCode,

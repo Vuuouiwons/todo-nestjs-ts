@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { SignUpDto, SignInDto } from './dto/create-auth.dto';
+import { ApiOperation } from '@nestjs/swagger';
+import { ValidationPipe } from 'src/pipes/validation/validation.pipe';
+import { SignInResponseDto } from './dto/response-auth.dto';
+import {
+  ApiCreatedResponse,
+  ApiConflictResponse,
+  ApiUnprocessableEntityResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse
+} from '@nestjs/swagger';
 
-@Controller('auth')
+@Controller({
+  path: 'auth',
+  version: '1'
+})
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService
+  ) { }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('/register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'register user' })
+  @ApiCreatedResponse({ description: 'user registered' })
+  @ApiConflictResponse({ description: 'email already registered' })
+  @ApiUnprocessableEntityResponse({ description: 'payload validation failed' })
+  async signUp(@Body(new ValidationPipe()) body: SignUpDto): Promise<void> {
+    return this.authService.signUp(body);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('/login')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'login' })
+  @ApiCreatedResponse({ description: 'login success', type: SignInResponseDto })
+  @ApiNotFoundResponse({ description: 'email or password not registered' })
+  @ApiBadRequestResponse({ description: 'email or password incorrect' })
+  async signIn(@Body() body: SignInDto): Promise<SignInResponseDto> {
+    return this.authService.signIn(body);
   }
 }
